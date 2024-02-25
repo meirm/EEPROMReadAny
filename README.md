@@ -26,9 +26,13 @@ Before using EEPROMAnything functions, you must include the library header and, 
 #include <EEPROMAnything.h>
 #include <I2CMultiEEPROM.h>
 
-// Create an I2CMultiEEPROM instance if using external EEPROM
-int eepromSizes[] = {512}; // Example external EEPROM size
-I2CMultiEEPROM externalEEPROM(1024, 512, eepromSizes);
+#include <I2CMultiEEPROM.h>
+#define INTERNALEEPROMSIZE 1024
+#define EEPROMSIZE 512 // Example EEPROM sizes in bytes
+#define NRCHIPS 1
+#define TOTALRAM  EEPROMSIZE * NRCHIPS + INTERNALEEPROMSIZE
+int eepromvector[] = {0x50};
+I2CMultiEEPROM * i2ceeprom;
 
 struct MyData {
   int sensorValue;
@@ -36,6 +40,7 @@ struct MyData {
 };
 
 void setup() {
+  i2ceeprom = I2CMultiEEPROM(1024, 512, eepromSizes); // 1024 bytes of internal EEPROM, 512 bytes external
   Serial.begin(9600);
   MyData data = {100, 36.5};
 
@@ -43,7 +48,7 @@ void setup() {
   EEPROM_writeAnything(0, data);
 
   // Write data to external EEPROM
-  EEPROM_writeAnything(&externalEEPROM, 0, data);
+  EEPROM_writeAnything(i2ceeprom, 1300, data);
 }
 
 void loop() {
@@ -57,7 +62,7 @@ void loop() {
   Serial.println(data.temperature);
 
   // Read data from external EEPROM
-  EEPROM_readAnything(&externalEEPROM, 0, data);
+  EEPROM_readAnything(i2ceeprom, 1300, data);
   Serial.print("External - Sensor: ");
   Serial.print(data.sensorValue);
   Serial.print(", Temp: ");
