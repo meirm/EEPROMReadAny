@@ -20,12 +20,43 @@ To use the EEPROMAnything library, ensure you have the I2CMultiEEPROM library in
 
 Before using EEPROMAnything functions, you must include the library header and, if using external EEPROMs, create an instance of the I2CMultiEEPROM class.
 
-### Example
+### Example with just internal EEPROM
 
 ```cpp
 #include <EEPROMAnything.h>
 #include <I2CMultiEEPROM.h>
 
+struct MyData {
+  int sensorValue;
+  float temperature;
+};
+
+void setup() {
+  Serial.begin(9600);
+  MyData data = {100, 36.5};
+
+  // Write data to internal EEPROM
+  EEPROM_writeAnything(0, data);
+}
+
+void loop() {
+  MyData data;
+  
+  // Read data from internal EEPROM
+  EEPROM_readAnything(0, data);
+  Serial.print("Internal - Sensor: ");
+  Serial.print(data.sensorValue);
+  Serial.print(", Temp: ");
+  Serial.println(data.temperature);
+
+  delay(10000); // Delay to make serial output readable
+}
+```
+
+### Example with I2C EEPROM
+
+```cpp
+#include <EEPROMAnything.h>
 #include <I2CMultiEEPROM.h>
 #define INTERNALEEPROMSIZE 1024
 #define EEPROMSIZE 512 // Example EEPROM sizes in bytes
